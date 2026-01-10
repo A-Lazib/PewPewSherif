@@ -7,6 +7,7 @@ let board;
 let boardWidth = tileSize * columns;
 let boardHeight = tileSize * rows;
 let context;
+let initialized = false;
 
 //ship
 let shipWidth = tileSize * 2;
@@ -23,6 +24,9 @@ let ship = {
 
 let shipImg;
 let shipVelocityX = tileSize; //ship moves one tile per click on x axis
+let facemeshVelocityX = tileSize/2; // smoother per-frame movement for facemesh
+let maxAxisSpeed = 220; // pixels/sec for analog tilt movement
+let lastTime = performance.now();
 
 //aliens
 let alienArray = [];
@@ -41,7 +45,6 @@ let alienVelocityX = 1;
 let bulletArray = [];
 let bulletVelocityY = -10; //moving up so it is negative
 
-
 //score
 let score = 0;
 let gameOver = false;
@@ -51,51 +54,96 @@ let gameControls = {
     left: false,
     right: false,
     mouthOpen: false,
+    axisX: 0,
 };
 let lastShotTime = 0;
-let shootCooldown = 200; // milliseconds between shots
+let shootCooldown = 150; // milliseconds between shots
 
+// Expose function to window for React/Facemesh to call
+window.updateGameControls = function(controls) {
+    gameControls.left = !!controls.left;
+    gameControls.right = !!controls.right;
+    gameControls.mouthOpen = !!controls.mouthOpen;
+    gameControls.axisX = typeof controls.axisX === 'number' ? Math.max(-1, Math.min(1, controls.axisX)) : 0;
+};
 
-//when the page loads we will call this functoin
-window.onload = function() {
+// Initialize game
+function initializeGame() {
+    if (initialized) return;
     board = document.getElementById("board");
+    if (!board) {
+        setTimeout(initializeGame, 50);
+        return;
+    }
+
+    initialized = true;
+    lastTime = performance.now();
+    
     board.width = boardWidth;
     board.height = boardHeight;
-    context = board.getContext("2d") //used for drawing on the board
-
+    context = board.getContext("2d");
 
     //load initial ship image
     shipImg = new Image();
-    shipImg.src = "./images/ship.png";
+    shipImg.src = "/images/ship.png";
     shipImg.onload = function() {
-        context.drawImage(shipImg, ship.x, ship.y, ship.width, ship.height);
+        if (context) context.drawImage(shipImg, ship.x, ship.y, ship.width, ship.height);
     }
 
     //load alien ship image
     alienImg = new Image();
-    alienImg.src = "./images/alien.png";
+    alienImg.src = "/images/alien.png";
     createAliens();
 
-
-    //tells the browser u want to perform an animation and asks it to call a
-    //specific function right before the next screen refresh(repaint).
     requestAnimationFrame(update);
 
     document.addEventListener("keydown", moveShip);
     document.addEventListener("keyup", shoot);
-        
-    // Listen for facemesh control updates from parent window
-    window.addEventListener("message", handleFacemeshControls);
 }
 
+// Start the game on demand (called from React Start button)
+window.startSpaceGame = function() {
+    initializeGame();
+};
 
 function update() {
     requestAnimationFrame(update);
 
     if (gameOver) return;
 
+    const now = performance.now();
+    const dt = Math.min(0.05, (now - lastTime) / 1000); // cap dt to avoid big jumps
+    lastTime = now;
+    const frameScale = dt * 60; // scale factor so existing per-frame speeds remain similar at ~60fps
+
     //ship
     context.clearRect(0,0, board.width, board.height);
+    
+    // Handle facemesh-based movement
+    if (Math.abs(gameControls.axisX) > 0.001) {
+        // Analog tilt control with speed proportional to tilt
+        ship.x += gameControls.axisX * maxAxisSpeed * dt;
+    } else {
+        // Fallback to binary left/right
+        if (gameControls.left && ship.x - facemeshVelocityX >= 0) {
+            ship.x -= facemeshVelocityX * frameScale;
+        } else if (gameControls.right && ship.x + facemeshVelocityX + ship.width <= boardWidth) {
+            ship.x += facemeshVelocityX * frameScale;
+        }
+    }
+    // Clamp within bounds
+    if (ship.x < 0) ship.x = 0;
+    if (ship.x + ship.width > boardWidth) ship.x = boardWidth - ship.width;
+    
+    // Handle facemesh-based shooting
+    if (gameControls.mouthOpen) {
+        const now = Date.now();
+        if (now - lastShotTime > shootCooldown) {
+            createBullet();
+            lastShotTime = now;
+        }
+    }
+    
     context.drawImage(shipImg, ship.x, ship.y, ship.width, ship.height);
 
     //alien
@@ -103,7 +151,7 @@ function update() {
         let alien = alienArray[i];
 
         if (alien.alive) {
-            alien.x += alienVelocityX;
+            alien.x += alienVelocityX * frameScale;
 
             //if alien touches side borders
             if (alien.x  + alien.width >= board.width || alien.x <= 0) {
@@ -126,7 +174,7 @@ function update() {
     for (let i = 0; i < bulletArray.length; i++) {
 
         let bullet = bulletArray[i];
-        bullet.y += bulletVelocityY;
+        bullet.y += bulletVelocityY * frameScale;
         context.fillStyle="white";
         context.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
         
@@ -164,7 +212,6 @@ function update() {
     context.fillText(`Score:${score}`, 5, 20);   
 }
 
-
 function moveShip(e) {
 
     if (gameOver) return;
@@ -177,7 +224,6 @@ function moveShip(e) {
         ship.x += shipVelocityX; //moving right one tile
     }
 }
-
 
 function createAliens() {
     for (let c = 0; c < alienColumns; c++) {
@@ -198,25 +244,25 @@ function createAliens() {
     alienCount = alienArray.length;
 }
 
+function createBullet() {
+    let bullet = {
+        x: ship.x + shipWidth*15/32,
+        y: ship.y,
+        width: tileSize/8,
+        height: tileSize/2,
+        used: false
+    }
+    bulletArray.push(bullet);
+}
 
 function shoot(e) {
 
     if (gameOver) return;
 
     if (e.code == "Space") {
-        
-        let bullet = {
-            x: ship.x + shipWidth*15/32,
-            y: ship.y,
-            width: tileSize/8,
-            height: tileSize/2,
-            used: false
-        }
-
-        bulletArray.push(bullet);
+        createBullet();
     }
 }
-
 
 function detectCollision(a,b) {
     return a.x < b.x + b.width &&   //a's top left corner doesn't reach b's top right corner

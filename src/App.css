@@ -1,38 +1,183 @@
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+  background:
+    radial-gradient(1200px 800px at 50% 20%, rgba(110, 90, 255, 0.28), transparent 60%),
+    radial-gradient(900px 600px at 20% 60%, rgba(255, 200, 80, 0.14), transparent 55%),
+    radial-gradient(1000px 700px at 80% 70%, rgba(80, 220, 255, 0.12), transparent 55%),
+    linear-gradient(180deg, #07061a 0%, #040414 55%, #02020a 100%);
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
-.App-link {
-  color: #61dafb;
+.StartScreen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: transparent;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.StartDecor {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+.StartDecor--stars {
+  inset: -40px;
+  opacity: 0.9;
+  background-image:
+    radial-gradient(2px 2px at 10% 20%, rgba(255, 255, 255, 0.8) 60%, transparent 61%),
+    radial-gradient(1.5px 1.5px at 40% 10%, rgba(255, 255, 255, 0.6) 60%, transparent 61%),
+    radial-gradient(2px 2px at 70% 25%, rgba(255, 255, 255, 0.7) 60%, transparent 61%),
+    radial-gradient(1.5px 1.5px at 85% 15%, rgba(255, 255, 255, 0.55) 60%, transparent 61%),
+    radial-gradient(1.5px 1.5px at 15% 75%, rgba(255, 255, 255, 0.55) 60%, transparent 61%),
+    radial-gradient(2px 2px at 55% 70%, rgba(255, 255, 255, 0.75) 60%, transparent 61%),
+    radial-gradient(1.5px 1.5px at 75% 85%, rgba(255, 255, 255, 0.6) 60%, transparent 61%),
+    radial-gradient(2px 2px at 92% 65%, rgba(255, 255, 255, 0.65) 60%, transparent 61%);
+  background-size: 420px 420px;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.12));
+}
+
+.StartDecor--planet {
+  width: 260px;
+  height: 260px;
+  right: -40px;
+  top: 70px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 220, 180, 0.95) 0%, rgba(255, 180, 110, 0.85) 32%, rgba(155, 105, 255, 0.7) 62%, rgba(60, 40, 120, 0.4) 100%);
+  filter: blur(0px) drop-shadow(0 20px 60px rgba(110, 90, 255, 0.22));
+}
+
+.StartDecor--planet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 40% 40%, rgba(255,255,255,0.28), transparent 45%),
+    radial-gradient(circle at 60% 60%, rgba(0,0,0,0.22), transparent 55%);
+  mix-blend-mode: overlay;
+}
+
+.StartDecor--ufo {
+  width: 220px;
+  height: 160px;
+  left: -30px;
+  top: 120px;
+  transform: rotate(-8deg);
+  border-radius: 120px 120px 80px 80px;
+  background:
+    radial-gradient(140px 90px at 50% 35%, rgba(255,255,255,0.6), rgba(255,255,255,0.12) 65%, transparent 70%),
+    linear-gradient(180deg, rgba(120, 90, 255, 0.55), rgba(30, 18, 70, 0.25));
+  box-shadow: 0 30px 70px rgba(20, 10, 60, 0.55);
+}
+
+.StartDecor--ufo::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 10px;
+  height: 46px;
+  border-radius: 60px;
+  background: linear-gradient(90deg, rgba(255, 210, 90, 0.18), rgba(80, 220, 255, 0.10));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+.StartCard {
+  width: min(560px, calc(100vw - 48px));
+  padding: 28px 26px 24px;
+  border-radius: 18px;
+  background: rgba(6, 6, 18, 0.62);
+  box-shadow:
+    0 30px 120px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.StartKicker {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.StartTitle {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 64px;
+  line-height: 0.95;
+  font-weight: 800;
+  color: #ffe08a;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.35),
+    0 14px 40px rgba(255, 200, 80, 0.10);
+}
+
+.StartSubtitle {
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+
+.StartButton {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #1b1300;
+  background: linear-gradient(180deg, #ffe08a, #ffbf4a);
+  box-shadow:
+    0 18px 45px rgba(255, 190, 70, 0.18),
+    inset 0 0 0 1px rgba(0,0,0,0.12);
+}
+
+.StartButton:active {
+  transform: translateY(1px);
+}
+
+.WebcamPreview {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: 240px;
+  height: 180px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+  z-index: 10;
+}
+
+#board {
+  border: 3px solid #fff;
+  background-color: transparent;
+  display: block;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  max-width: 100%;
+  max-height: 100vh;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
