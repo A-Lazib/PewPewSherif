@@ -2,7 +2,7 @@
   // npm install @tensorflow/tfjs @tensorflow-models/facemesh react-webcam
   // npm run start
 // Import dependencies
-  // Import react, useRef to avoid avoid rerenders whenever there are changes, and our dependencies
+// Import react, useRef to avoid avoid rerenders whenever there are changes, and our dependencies
 // Setup webcam and canvas
 // Define references to those
 // Load facemesh
@@ -121,54 +121,86 @@ function App() {
       }
     }
   };
+
+
   return (
     <div className="App">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-around",
+          alignItems: "flex-start",
+          gap: 40,
+          marginTop: 20,
+        }}
+      >
+        {/* ===== FACEMESH PANEL ===== */}
+        <div
+          style={{
+            position: "relative", // ⬅️ IMPORTANT
+            width: 640,
+            height: 480,
+            background: "#000",
+          }}
+        >
+          <Webcam
+            ref={webcamRef}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 640,
+              height: 480,
+              transform: "scaleX(-1)",
+              zIndex: 1,
+            }}
+          />
 
-      /* Styling */
-      <Webcam ref={webcamRef} style={
-        {
-          position:"absolute",
-          marginLeft:"auto",
-          marginRight:"auto",
-          left:0,
-          right:0,
-          textAlign:'center',
-          zIndex:9,
-          width:640,
-          height:480,
-          transform: "scaleX(-1)" // added to flip video visually for user
-        }
-      } />
+          <canvas
+            ref={canvasRef}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: 640,
+              height: 480,
+              zIndex: 2,
+            }}
+          />
 
-      <canvas ref={canvasRef} style={
-        {
-          position:"absolute",
-          marginLeft:"auto",
-          marginRight:"auto",
-          left:0,
-          right:0,
-          textAlign:'center',
-          zIndex:9,
-          width:640,
-          height:480
-        }
-      } />
+          <div
+            style={{
+              position: "absolute",
+              bottom: 8,
+              left: 0,
+              right: 0,
+              textAlign: "center",
+              color: "#fff",
+              fontWeight: "bold",
+              textShadow: "0 1px 2px #000",
+              zIndex: 3,
+            }}
+          >
+            {directionText}
+          </div>
+        </div>
 
-      <div style={{
-        position:"absolute",
-        bottom:10,
-        left:0,
-        right:0,
-        textAlign:'center',
-        zIndex:11,
-        color:"#fff",
-        fontWeight:"bold",
-        textShadow:"0 1px 2px #000"
-      }}>
-        {directionText}
+        {/* ===== SPACE INVADERS PANEL ===== */}
+        <iframe
+          src="/SpaceInvaders/index.html"
+          title="Space Invaders"
+          width={512}
+          height={512}
+          style={{
+            border: "3px solid black",
+            background: "black",
+            zIndex: 0, // ⬅️ stays behind
+          }}
+        />
       </div>
     </div>
   );
+
 }
 
 export default App;
