@@ -1,3 +1,12 @@
+//including face controls
+let externalControls = {
+    left: false,
+    right: false,
+    shoot: false
+}
+
+let canShoot = true;
+
 //board
 let tileSize = 32;
 let rows = 16;
@@ -81,6 +90,21 @@ function update() {
     requestAnimationFrame(update);
 
     if (gameOver) return;
+
+    if (externalControls.left && ship.x - shipVelocityX >= 0) {
+        ship.x -= shipVelocityX;
+    }
+
+    if (externalControls.right && ship.x + shipVelocityX + ship.width <= boardWidth) {
+        ship.x += shipVelocityX;
+    }
+
+    if (externalControls.shoot && canShoot) {
+        shoot({code: "Space"});
+        canShoot = false;
+    }
+
+    if (!externalControls.shoot) canShoot = true;
 
     //ship
     context.clearRect(0,0, board.width, board.height);
@@ -211,4 +235,11 @@ function detectCollision(a,b) {
            a.x + a.width > b.x &&   //a's top right corner passes b's top left corner 
            a.y < b.y + b.height &&  //a's top left corner doesn't reach b's bottom left corner
            a.y + a.height > b.y     //a's bottom left corner passes b's top left corner
+}
+
+
+window.setShipControls = function (controls) {
+    externalControls.left = controls.left;
+    externalControls.right = controls.right;
+    externalControls.shoot = controls.mouthOpen;
 }
