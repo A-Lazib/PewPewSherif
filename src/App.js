@@ -60,7 +60,7 @@ function App() {
           console.error('❌ Facemesh failed to load:', err.message);
           console.log('Game will still work with keyboard controls (Arrow keys + Space)');
         });
-    }, 300);
+    }, 15);
 
     return () => {
       clearTimeout(t);
